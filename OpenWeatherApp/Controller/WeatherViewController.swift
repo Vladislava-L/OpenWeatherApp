@@ -10,9 +10,8 @@ import Alamofire
 import SwiftyJSON
 import CoreLocation
 
-class WeatherViewController: UIViewController, CLLocationManagerDelegate, ChangeCityDelegate{
-    
-    
+class WeatherViewController: UIViewController, CLLocationManagerDelegate, ChangeCityDelegate {
+   
 
     @IBOutlet weak var weatherIcon: UIImageView!
     @IBOutlet weak var tempLabel: UILabel!
@@ -41,27 +40,30 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
             let latitude = String(location.coordinate.latitude)
             let longitude = String(location.coordinate.longitude)
             
-            let params: [String:String] = ["lat": latitude, "lon": longitude , "appid": weatherDataModel.apiId]
+            let params: [String:String] = ["lat": latitude , "lon": longitude , "appid": weatherDataModel.apiId]
             
             getWeatherData(url: weatherDataModel.apiUrl, params: params)
+            
         }
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("error: ", error)
+        print("err: ", error)
+        //update
     }
+    
     
     func getWeatherData(url: String, params: [String: String]){
         
         AF.request(url, method: .get, parameters: params).responseJSON { (response) in
             if response.value != nil {
                 let weatherJSON: JSON = JSON(response.value!)
-                print("weatherJSON: ",weatherJSON)
+                print("weatherJSON: ", weatherJSON)
                 //update
                 self.updateWeatherData(json: weatherJSON)
             }else{
-                print("error, \(String(describing: response.error))")
-                self.cityLabel.text = "Weather unavailable!"
+                print("err, \(String(describing: response.error))")
+                self.cityLabel.text = "Weather unavailible !"
             }
         }
     }
@@ -76,8 +78,9 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
             
             weatherDataModel.weatherIconName = weatherDataModel.updateWeatherIcon(condition: weatherDataModel.condition)
             updateUI()
+            
         }else{
-            self.cityLabel.text = "Weather unavailable!"
+            self.cityLabel.text = "Weather unavailible !"
         }
         
     }
@@ -86,18 +89,19 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
     
     func updateUI(){
         cityLabel.text = weatherDataModel.city
-        tempLabel.text = "\(weatherDataModel.temp) °"
+        tempLabel.text = "\(weatherDataModel.temp) º"
         weatherIcon.image = UIImage(named: weatherDataModel.weatherIconName)
     }
     
     //MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "City"{
+        if segue.identifier == "city"{
             let vc = segue.destination as! ChangeCityViewController
             vc.delegate = self
         }
     }
+    
     
     func userEnterCityName(city: String) {
         print(city)
@@ -105,5 +109,6 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
         
         getWeatherData(url: weatherDataModel.apiUrl, params: params)
     }
-}
+    
 
+}
